@@ -434,11 +434,22 @@ class Initializer:
         ):
             collection = await self.database.create_collection(
                 **document_settings.timeseries.build_query(
-                    document_settings.name
+                    document_settings.name,
+                    cap_to_max_size=getattr(
+                        document_settings, "cap_to_max_size", None
+                    ),
                 )
             )
         else:
             collection = self.database[document_settings.name]
+            if getattr(document_settings, "cap_to_max_size", None):
+                cap_to_max_size = getattr(document_settings, "cap_to_max_size")
+                options = await collection.options()
+                if options.get("size") != cap_to_max_size:
+                    # change collection size
+                    await self.database.command(
+                        "convertToCapped", document_settings.name, size=cap_to_max_size
+                    )
 
         cls.set_collection(collection)
 

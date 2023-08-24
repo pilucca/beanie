@@ -24,7 +24,7 @@ class TimeSeriesConfig(BaseModel):
     granularity: Optional[Granularity] = None
     expire_after_seconds: Optional[float] = None
 
-    def build_query(self, collection_name: str) -> Dict[str, Any]:
+    def build_query(self, collection_name: str, cap_to_max_size: Optional[int] = None) -> Dict[str, Any]:
         res: Dict[str, Any] = {"name": collection_name}
         timeseries = {"timeField": self.time_field}
         if self.meta_field is not None:
@@ -34,4 +34,7 @@ class TimeSeriesConfig(BaseModel):
         res["timeseries"] = timeseries
         if self.expire_after_seconds is not None:
             res["expireAfterSeconds"] = self.expire_after_seconds
+        if cap_to_max_size:
+            res["capped"] = True
+            res["size"] = cap_to_max_size
         return res

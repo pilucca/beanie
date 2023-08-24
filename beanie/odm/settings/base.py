@@ -23,5 +23,8 @@ class ItemSettings(BaseModel):
 
     is_root: bool = False
 
+    # allow declaration of a capped collection, specifying max size
+    cap_to_max_size: Optional[int] = None
+
     class Config:
         arbitrary_types_allowed = True
